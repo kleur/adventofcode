@@ -18,6 +18,14 @@ def get_input(file):
     return lines
 
 
+# Helper function
+def multiply_elements(selection):
+    result = 1
+    for expense in selection:
+        result = result * expense
+    return result
+
+
 def find_numbers_loops(expenses, total):
     for num, expense in enumerate(expenses, start=1):
         part = total - expense
@@ -28,18 +36,24 @@ def find_numbers_loops(expenses, total):
                 return expense * part
 
 
-def find_numbers_recursive(array, n):
-    if n > 0:
-        first = array[0]
-        last = array[n - 1]
-        target = 2020 - first
-        # print("*", array, "first", first, "last", last, "target", target)
-        if last == target:
-            print("found", first, "and", last, "product", first * last)
-        if last > target:
-            find_numbers_recursive(array[1:], n - 1)
-        if last < target:
-            find_numbers_recursive(array, n - 1)
+def find_numbers_recursive(slots, selection, nums, target):
+    if len(nums) == 0 or slots == 0:
+        if slots == 0 and target == 0:
+            print("found", selection, "product",  multiply_elements(selection))
+        return target == 0
+
+    if target == 0:
+        return slots == 0
+
+    if target < 0:
+        return False
+
+    num = nums[0]
+
+    is_chosen = find_numbers_recursive(slots - 1, selection + [num], nums[1:], target - num)
+    not_chosen = find_numbers_recursive(slots, selection, nums[1:], target)
+
+    return is_chosen or not_chosen
 
 
 # Driver program to test above function
@@ -47,4 +61,4 @@ expenses = get_input('input.txt')
 expenses.sort(reverse=True)
 
 find_numbers_loops(expenses, 2020)
-find_numbers_recursive(expenses, len(expenses))
+find_numbers_recursive(3, [], expenses, 2020)
