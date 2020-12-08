@@ -20,8 +20,16 @@ def travel(x, y, grid, step, count):
     return travel(x + step["x"], y + step["y"], grid, step, count)
 
 
+def multiply(grid, slopes, total=1):
+    if len(slopes) == 0:
+        return total
+    trees = travel(0, 0, grid, slopes[0], 0)
+    print("trees", trees)
+    return trees * multiply(grid, slopes[1:], total)
+
+
 grid_map = get_input("input.txt")
-slopes = [
+all_slopes = [
     {"x": 1, "y": 1},
     {"x": 3, "y": 1},
     {"x": 5, "y": 1},
@@ -30,12 +38,4 @@ slopes = [
 ]
 
 
-def multiply(grid, array, total=1):
-    if len(array) == 0:
-        return total
-    trees = travel(0, 0, grid_map, array[0], 0)
-    print("trees", trees)
-    return trees * multiply(grid, array[1:], total)
-
-
-print("product", multiply(grid_map, slopes))
+print("product", multiply(grid_map, all_slopes))
