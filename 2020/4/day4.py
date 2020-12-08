@@ -60,27 +60,35 @@ def country_id_valid(id):
     return True
 
 
-def is_valid_pt1(passport):
-    mandatory_fields = ['byr', 'ecl', 'eyr', 'hcl', 'hgt', 'iyr', 'pid']
-    for mandatory_field in mandatory_fields:
+def create_validator():
+    return {
+        'byr': birth_year_valid,
+        'iyr': issue_year_valid,
+        'eyr': exp_year_valid,
+        'hgt': height_valid,
+        'hcl': hair_color_valid,
+        'ecl': eye_color_valid,
+        'pid': passport_id_valid
+    }
+
+
+def is_valid_pt1(passport, validator):
+    for mandatory_field in validator.keys():
         if mandatory_field not in passport:
             return False
     return True
 
 
-def is_valid_pt2(passport):
-    mandatory_fields = ['byr', 'ecl', 'eyr', 'hcl', 'hgt', 'iyr', 'pid']
-    for mandatory_field in mandatory_fields:
+def is_valid_pt2(passport, validator):
+    for mandatory_field in validator.keys():
         if mandatory_field not in passport:
             return False
+        else:
+            valid = validator[mandatory_field](passport[mandatory_field])
+            if not valid:
+                return False
 
-    return birth_year_valid(passport["byr"]) \
-           and issue_year_valid(passport["iyr"]) \
-           and exp_year_valid(passport["eyr"]) \
-           and height_valid(passport["hgt"]) \
-           and hair_color_valid(passport["hcl"]) \
-           and eye_color_valid(passport["ecl"]) \
-           and passport_id_valid(passport["pid"])
+    return True
 
 
 def to_passports(raw_lines):
@@ -104,16 +112,16 @@ def to_passports(raw_lines):
     return passports
 
 
-def count_valid(passports, flag):
+def count_valid(passports, validator, flag):
     count = 0
     for p in passports:
         valid = False
         for i in p.items():
             print(i)
-        if flag == "part1" and is_valid_pt1(p):
+        if flag == "part1" and is_valid_pt1(p, validator):
             valid = True
             count += 1
-        if flag == "part2" and is_valid_pt2(p):
+        if flag == "part2" and is_valid_pt2(p, validator):
             valid = True
             count += 1
         print("Valid:", valid, "\n")
@@ -121,4 +129,4 @@ def count_valid(passports, flag):
 
 
 all_passports = to_passports(get_input("input.txt"))
-print(count_valid(all_passports, "part2"))
+print(count_valid(all_passports, create_validator(), "part2"))
