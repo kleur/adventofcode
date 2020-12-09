@@ -32,19 +32,24 @@ def to_unique_ids(seat_ids):
     return uids
 
 
-def print_airplane_layout(seats):
-    for x in range(0, 128):
+def determine_missing_seat(seats):
+    my_seat = " "
+    for row in range(0, 128):
         cols = []
-        for y in range(0, 8):
-            if (x, y) in seats:
-                seat = seats[(x, y)]
+        for col in range(0, 8):
+            if (row, col) in seats:
+                seat = seats[(row, col)]
                 if seat < 100:
                     cols.append(" " + str(seat))
                 else:
                     cols.append(str(seat))
             else:
+                uid = row * 8 + col
+                if uid + 1 in seats.values() and uid - 1 in seats.values():
+                    my_seat = uid
                 cols.append("   ")
         print(cols)
+    return my_seat
 
 
 boarding_passes = get_input("input.txt")
@@ -52,4 +57,4 @@ seats_dict = to_unique_ids(boarding_passes)
 unique_seat_ids = list(seats_dict.values())
 unique_seat_ids.sort()
 print("highest id", unique_seat_ids[-1])
-print_airplane_layout(seats_dict)
+print("my seat", determine_missing_seat(seats_dict))
