@@ -4,16 +4,16 @@ def get_input(file):
     return lines
 
 
-def determine_pos(seat_code, n, pos):
-    if n == len(seat_code):
+def determine_pos(seat_code, pos):
+    if 0 == len(seat_code):
         return pos - 1
-    move = int(pow(2, len(seat_code) - n) / 2)
-    if seat_code[n] in ["B", "R"]:
-        # stay
-        return determine_pos(seat_code, n + 1, pos)
-    if seat_code[n] in ["F", "L"]:
-        # move
-        return determine_pos(seat_code, n + 1, pos - move)
+    # stay
+    if seat_code[0] in ["B", "R"]:
+        return determine_pos(seat_code[1:], pos)
+    # move
+    if seat_code[0] in ["F", "L"]:
+        move = int(pow(2, len(seat_code)) / 2)
+        return determine_pos(seat_code[1:], pos - move)
 
 
 def to_unique_ids(seat_ids):
@@ -21,8 +21,8 @@ def to_unique_ids(seat_ids):
     for seat_id in seat_ids:
         row_seq = seat_id[:7]
         col_seq = seat_id[7:]
-        row = determine_pos(row_seq, 0, 128)
-        col = determine_pos(col_seq, 0, 8)
+        row = determine_pos(row_seq, 128)
+        col = determine_pos(col_seq, 8)
         uid = row * 8 + col
         uids[row, col] = uid
     return uids
