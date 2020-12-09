@@ -16,16 +16,18 @@ def determine_pos(seat_code, pos):
         return determine_pos(seat_code[1:], pos - move)
 
 
+def determine_uid(row, col):
+    return row * 8 + col
+
+
 def to_unique_ids(seat_ids):
-    uids = {}
+    ids = {}
+    # cut BFFFBBFRRR into BFFFBBF and RRR
     for seat_id in seat_ids:
-        row_seq = seat_id[:7]
-        col_seq = seat_id[7:]
-        row = determine_pos(row_seq, 128)
-        col = determine_pos(col_seq, 8)
-        uid = row * 8 + col
-        uids[row, col] = uid
-    return uids
+        row = determine_pos(seat_id[:7], 128)
+        col = determine_pos(seat_id[7:], 8)
+        ids[row, col] = determine_uid(row, col)
+    return ids
 
 
 def determine_missing_seat(seats):
@@ -40,7 +42,7 @@ def determine_missing_seat(seats):
                 else:
                     cols.append(str(seat))
             else:
-                uid = row * 8 + col
+                uid = determine_uid(row, col)
                 if uid + 1 in seats.values() and uid - 1 in seats.values():
                     my_seat = uid
                 cols.append("   ")
