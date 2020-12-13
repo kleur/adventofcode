@@ -15,6 +15,7 @@ def print_bag_capacities(data):
             first_str = str_list[0]
             if first_str == "no":
                 print("no bag")
+                pass
             else:
                 child_split = "-".join(str_list[1:-1])
                 print("qty:", int(first_str), ":", child_split)
@@ -43,15 +44,26 @@ def find_possibilities(bags_dict, my_bag, accumulator):
     for parent, children in bags_dict.items():
         for child_dict in children:
             if my_bag in child_dict:
-                child_bag = list(child_dict.keys())[0]
-                # print(child_bag, "fits in", parent)
                 accumulator.add(parent)
                 find_possibilities(bags_dict, parent, accumulator)
     return accumulator
 
 
+def find_number_of_child_bags_required(bags_dict, parent, accumulator):
+    current_bag = bags_dict[parent]
+    if len(current_bag) == 0:
+        return 1
+    for child_dict in current_bag:
+        child_bag = list(child_dict.keys())[0]
+        quantity = int(child_dict[child_bag])
+        for n in range(0, quantity):
+            accumulator += find_number_of_child_bags_required(bags_dict, child_bag, 1)
+    return accumulator
+
+
 raw_data = get_input("input.txt")
 bags = raw_data_to_dict(raw_data)
-print_bag_capacities(raw_data)
-result = find_possibilities(bags, "shiny-gold", set())
-print("total:", len(result))
+# print_bag_capacities(raw_data)
+possibilities = find_possibilities(bags, "shiny-gold", set())
+print("number of bag colors that can contain eventually:", len(possibilities))
+print("number of individual bags:", find_number_of_child_bags_required(bags, "shiny-gold", 0))
