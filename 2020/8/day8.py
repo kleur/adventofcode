@@ -41,24 +41,22 @@ def run_rec2(operations, n, acc, executed):
         return run_rec2(operations, n + cur["arg"], acc, executed)
 
 
-def fix_program(opz):
+def fix_program(operations):
     final_result = 0
-    for n in range(0, len(opz)):
-        cur = opz[n]
-        if cur["op"] == "nop":
-            res2 = []
-            if cur["arg"] < 0 or cur["arg"] > 0:
-                ops_copy3 = opz.copy()
-                ops_copy3[n] = {"op": "jmp", "arg": cur["arg"]}
-                res2 = run_rec2(ops_copy3, 0, 0, set())
-            if len(res2) > 0:
-                final_result = res2[0]
+    for n in range(0, len(operations)):
+        cur = operations[n]
+        if cur["op"] == "nop" and cur["arg"] != 0:
+            ops_copy = operations.copy()
+            ops_copy[n] = {"op": "jmp", "arg": cur["arg"]}
+            res = run_rec2(ops_copy, 0, 0, set())
+            if len(res) > 0:
+                final_result = res[0]
         if cur["op"] == "jmp":
-            ops_copy4 = opz.copy()
-            ops_copy4[n] = {"op": "nop", "arg": cur["arg"]}
-            res2 = run_rec2(ops_copy4, 0, 0, set())
-            if len(res2) > 0:
-                final_result = res2[0]
+            ops_copy = operations.copy()
+            ops_copy[n] = {"op": "nop", "arg": cur["arg"]}
+            res = run_rec2(ops_copy, 0, 0, set())
+            if len(res) > 0:
+                final_result = res[0]
     return final_result
 
 
