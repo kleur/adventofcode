@@ -32,16 +32,20 @@ def part1_iteration(numbers):
     return gamma * epsilon
 
 def oxygen(numbers):
+    # loop over position
     for x in range(len(numbers[0])):
-        vertical = sum([line[x] for line in numbers]) * 2
-        numbers = filter(lambda line: line[x] == (1 if vertical >= len(numbers) else 0), numbers) 
+        vertical_sum = sum([line[x] for line in numbers]) * 2
+        match = 1 if vertical_sum >= len(numbers) else 0
+        numbers = filter(lambda line: line[x] == match, numbers) 
         if len(numbers) == 1:
             return to_decimal(numbers[0])
 
 def scrubber(numbers):
+    # loop over position
     for x in range(len(numbers[0])):
-        vertical = sum([line[x] for line in numbers]) * 2
-        numbers = filter(lambda line: line[x] == (1 if vertical < len(numbers) else 0), numbers) 
+        vertical_sum = sum([line[x] for line in numbers]) * 2
+        match = 1 if vertical_sum < len(numbers) else 0
+        numbers = filter(lambda line: line[x] == match, numbers) 
         if len(numbers) == 1:
             return to_decimal(numbers[0])
 
@@ -50,6 +54,6 @@ def part2_iteration(numbers):
     
     
 # driver function
-input = get_input("input.txt")
+input = get_input("test_input.txt")
 print("part 1 iterative:", part1_iteration(input))
 print("part 2 iterative:", part2_iteration(input))
