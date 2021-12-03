@@ -31,27 +31,28 @@ def part1_iteration(numbers):
     # multiply
     return gamma * epsilon
 
-def oxygen(numbers):
+def find(numbers, criteria):
     # loop over position
     for x in range(len(numbers[0])):
-        vertical_sum = sum([line[x] for line in numbers]) * 2
-        match = 1 if vertical_sum >= len(numbers) else 0
+        
+        # sum the bits in this vertical position
+        vertical_sum = sum([line[x] for line in numbers])
+        
+        # this is False if there's less 0 than 1
+        more_1 = vertical_sum * 2 >= len(numbers)
+        
+        # here we switch by criteria, as True == 1
+        match = more_1 == criteria
+        
+        # filter the numbers
         numbers = filter(lambda line: line[x] == match, numbers) 
-        if len(numbers) == 1:
-            return to_decimal(numbers[0])
-
-def scrubber(numbers):
-    # loop over position
-    for x in range(len(numbers[0])):
-        vertical_sum = sum([line[x] for line in numbers]) * 2
-        match = 1 if vertical_sum < len(numbers) else 0
-        numbers = filter(lambda line: line[x] == match, numbers) 
+        
+        # quit the loop and return if there's only one left
         if len(numbers) == 1:
             return to_decimal(numbers[0])
 
 def part2_iteration(numbers):
-    return oxygen(numbers) * scrubber(numbers)
-    
+    return find(numbers, 1) * find(numbers, 0)
     
 # driver function
 input = get_input("test_input.txt")
