@@ -5,72 +5,64 @@ def get_input(file):
     return lines
     
 def to_position(raw, p):
-    return [int(char) for char in raw.split()[p].split(",")]
+    pos_strings = raw.split()[p].split(",")
+    return [int(ps) for ps in pos_strings]
     
-def to_range(arr):
-    if len(arr) > 1 and arr[1] > arr[0]:
-        rng = [pos for pos in range(arr[0], arr[1]+1, 1)]
-    else:
-        rng = [pos for pos in range(arr[0], arr[1]-1, -1)]
-    return rng
+#TODO: refactor
+def to_positions(raw, include_diagonal):
+    a = to_position(raw, 0)
+    b = to_position(raw, 2)
     
-def to_positions(line1):    
-    x1range = to_range([line1[0][0], line1[1][0]])
-    y1range = to_range([line1[0][1], line1[1][1]])    
+    x_range = []
+    y_range = []
     
-    positions = []
-    if len(x1range) > 1:
-        for i in range(len(x1range)):        
-            ix = min(i, len(x1range)-1)
-            iy = min(i, len(y1range)-1)
-            positions.append([x1range[ix], y1range[iy]])
-    else:
-        for i in range(len(y1range)):        
-            ix = min(i, len(x1range)-1)
-            iy = min(i, len(y1range)-1)
-            positions.append([x1range[ix], y1range[iy]])
-    
-    return positions
-    
-def intersect(line1, line2):
-    pos1 = to_positions(line1)
-    pos2 = to_positions(line2)
-    collisions = []
-    for p1 in pos1:
-        for p2 in pos2:
-            if p1 == p2:
-                collisions.append(p1)
-    return collisions
+    if a[0] == b[0]:
+        # vertical
+        y_range = range(min(a[1], b[1]), max(a[1], b[1])+1)
+        return [str([a[0],y]) for y in y_range]
+    if a[1] == b[1]:
+        # horizontal
+        x_range = range(min(a[0], b[0]), max(a[0], b[0])+1)
+        return [str([x,a[1]]) for x in x_range]
+    elif include_diagonal:
+        # diagonal
+        if a[0] < b[0]:
+            x_range = range(a[0], b[0] + 1, 1)
+        if a[0] > b[0]:
+            x_range = range(a[0], b[0] - 1, -1)
+        if a[1] < b[1]:
+            y_range = range(a[1], b[1] + 1, 1)            
+        if a[1] > b[1]:
+            y_range = range(a[1], b[1] - 1, -1)            
+        return [str([x_range[i],y_range[i]]) for i in range(len(x_range))]
+    return []
 
+def find_duplicates(positions):
+    seen = {}
+    dupes = []
+
+    for x in positions:
+        if x not in seen:
+            seen[x] = 1
+        else:
+            if seen[x] == 1:
+                dupes.append(x)
+            seen[x] += 1
+    return dupes
+            
 def part1_iteration(data):
-    all_lines = map(lambda g : [to_position(g,0), to_position(g,2)], data)
-    lines = filter(lambda u : u[0][0]==u[1][0] or u[0][1]==u[1][1], all_lines)
-    collisions = []
-    for i in range(len(lines)-1):
-        cur = lines[i]
-        print("checking with line", cur)
-        for line in lines[i+1:]:
-            col_cur = intersect(cur, line)
-            if len(col_cur) > 0:
-                collisions.extend(str(pos) for pos in col_cur)
-        
-    return len(set(collisions))
+    all_pos = []
+    for raw in data:
+        all_pos.extend(to_positions(raw, False))
+    return len(set(find_duplicates(all_pos)))
     
 def part2_iteration(data):
-    lines = map(lambda g : [to_position(g,0), to_position(g,2)], data)
-    collisions = []    
-    for i in range(len(lines)-1):
-        cur = lines[i]
-        print("checking with line", cur)
-        for line in lines[i+1:]:
-            col_cur = intersect(cur, line)
-            if len(col_cur) > 0:
-                collisions.extend(str(pos) for pos in col_cur)
-
-    return len(set(collisions))
-
+    all_pos = []
+    for raw in data:
+        all_pos.extend(to_positions(raw, True))
+    return len(set(find_duplicates(all_pos)))
+    
 # driver function
 input = get_input("test_input.txt")
 print("part 1 iterative:", part1_iteration(input))
 print("part 2 iterative:", part2_iteration(input))
-
