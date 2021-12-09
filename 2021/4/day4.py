@@ -6,62 +6,52 @@ def get_input(file):
     with open(file, 'r') as f:
         lines = [line.strip() for line in f]
     return lines
-    
-def pretty_print(boards):
-    for board in boards:
-        for pos in board:
-            print(pos)
-        print(" ")
 
-def transform(raw_lines, data = {}, boards = [], board = {}, x = 0, y = 0):
-    data["numbers"] = [int(rw) for rw in raw_lines[0].split(",")]
-    raw_boards = raw_lines[2:]
-    boards_count = 0
-    # loop over raw lines
-    for i in range(0, len(raw_boards)+1):
-        # save if empty line or last line
-        if i == len(raw_boards) or len(raw_boards[i]) == 0:
-            boards.append(board)
-            boards_count += 1
-            board = {}
-            x = 0
-            y = 0
-        else:
-            line = raw_boards[i]
-            for x, char in enumerate(line.split()):
-                board[int(char)] = {"x": x, "y": y}
-            y += 1
-    data["boards"] = boards
+# to bingo boards
+def to_boards(raw_lines, cells={}, boards=[], y=0):
+    if len(raw_lines) == 0 or len(raw_lines[0]) == 0:
+        boards.append({"cells": cells, "score": 0})
+    if len(raw_lines) == 0:
+        return boards
+    if len(raw_lines[0]) == 0:
+        return to_boards(raw_lines[1:], {}, boards, 0)
+    else:
+        for x, char in enumerate(raw_lines[0].split()):
+            cells[int(char)] = {"x":x, "y":y}
+        return to_boards(raw_lines[1:], cells, boards, y+1)
+
+# organize into numbers & boards
+def transform(raw_lines, data={}):
+    data["numbers"] = [int(raw) for raw in raw_lines[0].split(",")]
+    data["boards"] = to_boards(raw_lines[2:])
     return data
-    
-def bingo(board):
-    x = set([v["x"] for v in board.values()])
-    y = set([v["y"] for v in board.values()])
-    return len(x) != len(y)
-        
-def part1_recursive(data, idx_drawn=0, idx_board=0):
-    if idx_drawn == len(data["numbers"]):
-        return "End"
 
-    num = data["numbers"][idx_drawn]
-    board = data["boards"][idx_board]
-    
-    if num in board:
-        del board[num]
-        for key in board:
-            print(key, board[key])
-        print(" ")
-    if (bingo(board)):
-        print("BINGO!")
-        return num * sum(board.keys()) # bingo!!!
-    
-    idx_board += 1 # consider next board
-    if idx_board == len(data["boards"]):
-        print("starting from the top")
-        idx_drawn += 1 # draw a new number
-        idx_board = 0  # start at the first board
-    return part1_recursive(data, idx_drawn, idx_board)
+# determine if there's a vertical or horizontal row crossed    
+def is_bingo(board):
+    x = set([cell["x"] for cell in board["cells"].values()])
+    y = set([cell["y"] for cell in board["cells"].values()])
+    return len(x) < 5 or len(y) < 5
+
+# score a board: bingo after how many draws, and what's the score?
+def score(board, nums, draws=0):
+    num = nums[0]
+    if num in board["cells"].keys():
+        del board["cells"][num]
+    if len(nums) == 1 or is_bingo(board):
+        board_score = num * sum(board["cells"].keys())
+        board["score"] = board_score
+        board["after"] = draws
+        return board
+    return score(board, nums[1:], draws+1)
+
+
+def part1and2(data, sort):
+    nums=data["numbers"]
+    boards=data["boards"]    
+    scored_boards = map(lambda board : score(board, nums), boards)
+    scored_boards.sort(key=lambda brd: brd["after"])
+    return scored_boards[sort]["score"]
         
 # driver function
 input = transform(get_input("test_input.txt"))
-print("part 1 recursive:", part1_recursive(input))
+print("part 1 recursive:", part1and2(input, -1))
