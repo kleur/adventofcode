@@ -23,28 +23,28 @@ def align_recursive(grid, fuel=0):
     if len(grid.keys()) == 1:
         return [grid.keys()[0], fuel]
     
-    print_grid(grid)
+    # print_grid(grid)
     
-    left = min(grid.keys())
-    right= max(grid.keys())
+    left = min(grid.keys()) # leftmost position of grid
+    right= max(grid.keys()) # rightmost position of grid
     
     left_crabs = grid[left]
     right_crabs = grid[right]
     
-    left_fuel = left_crabs * 1
-    right_fuel = right_crabs * 1
+    left_fuel = left_crabs # total crabs on x position = amount of fuel it costs to move them
+    right_fuel = right_crabs
     
     if left_fuel <= right_fuel:
-        fuel += left_fuel
-        next_left = grid[left+1]
-        grid[left+1] = next_left + left_crabs
-        del grid[left]
+        fuel += left_fuel # add fuel to accumulator
+        grid.pop(left) # remove the position
+        next_left = grid[left+1] # take the next position
+        grid[left+1] = next_left + left_crabs # move the crabs to next position
         
     if right_fuel <= left_fuel:
-        fuel += right_fuel
-        next_right = grid[right-1]
-        grid[right-1] = next_right + right_crabs
-        del grid[right]
+        fuel += right_fuel # add fuel to accumulator
+        grid.pop(right) # remove the position
+        next_right = grid[right-1] # take the next position
+        grid[right-1] = next_right + right_crabs # move the crabs to next position
     
     return align_recursive(grid, fuel)
     
@@ -52,8 +52,8 @@ def align_recursive_exponential(grid, fuel=0):
     if len(grid.keys()) == 1:
         return [grid.keys()[0], fuel]
     
-    left = min(grid.keys())
-    right= max(grid.keys())
+    left = min(grid.keys()) # leftmost position of grid
+    right= max(grid.keys()) # rightmost position of grid
     
     left_crabs = [c+1 for c in grid[left]]
     right_crabs = [c+1 for c in grid[right]]
@@ -62,22 +62,22 @@ def align_recursive_exponential(grid, fuel=0):
     right_fuel = sum(right_crabs)
     
     if left_fuel <= right_fuel:
-        fuel += left_fuel
-        grid.pop(left)
-        next_left = grid[left+1]
-        grid[left+1] = (next_left + left_crabs)
+        fuel += left_fuel # add fuel to accumulator
+        grid.pop(left) # remove the position
+        next_left = grid[left+1] # take the next position
+        grid[left+1] = (next_left + left_crabs) # move the crabs to next position
     
     if right_fuel <= left_fuel:
-        fuel += right_fuel
-        grid.pop(right)
-        next_right = grid[right-1]
-        grid[right-1] = (next_right + right_crabs)
+        fuel += right_fuel # add fuel to accumulator
+        grid.pop(right) # remove the position
+        next_right = grid[right-1] # take the next position
+        grid[right-1] = (next_right + right_crabs) # move the crabs to next position
     
     return align_recursive_exponential(grid, fuel)
 
 # driver function
 def part1_recursive(crabs):
-    pretty_print(crabs)
+    # pretty_print(crabs)
     crabs_dict = dict.fromkeys(range(min(crabs),max(crabs)), 0) # create empty dict
     counts = dict((crab,crabs.count(crab)) for crab in set(crabs)) # count how many 0's, 1's etc.
     crabs_dict.update(counts) # add the crab counts
@@ -85,6 +85,7 @@ def part1_recursive(crabs):
     
 # driver function
 def part2_recursive(crabs):
+    # pretty_print(crabs)
     crabs_dict = dict.fromkeys(range(min(crabs),max(crabs)), []) # create empty dict
     arrays = dict((crab,[0 for i in range(crabs.count(crab))]) for crab in set(crabs)) # three crabs with x=2 -> [0,0,0] at key 2
     crabs_dict.update(arrays)
