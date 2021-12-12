@@ -39,19 +39,36 @@ def part2_recursive(entries, count=0):
     
     mappings = {}
     mappings["top"] = find_difference(uniques[3], uniques[2])    
-    for digit in set("abcdefg"):
-        if (count_occurrence(fives, digit) == 3 == count_occurrence(sixes, digit)) and digit != mappings["top"]:
+    
+    
+    all_letters = "abcdefg"
+    
+    all_letters = all_letters.replace(mappings["top"], "")
+    
+    for digit in set(all_letters):
+        if (count_occurrence(fives, digit) == 3 == count_occurrence(sixes, digit)):
             mappings["bottom"] = digit
+            all_letters = all_letters.replace(digit, "")
+    for digit in set(all_letters):
         if (count_occurrence(fives, digit) == 1 and count_occurrence(sixes, digit)) == 3:
             mappings["top_left"] = digit
+            all_letters = all_letters.replace(digit, "")
+    for digit in set(all_letters):
         if (count_occurrence(fives, digit) == 1 and count_occurrence(sixes, digit)) == 2:
             mappings["bottom_left"] = digit
+            all_letters = all_letters.replace(digit, "")
+    for digit in set(all_letters):
         if (count_occurrence(fives, digit) == 3 and count_occurrence(sixes, digit)) == 2:
             mappings["middle"] = digit
+            all_letters = all_letters.replace(digit, "")
+    for digit in set(all_letters):
         if (count_occurrence(fives, digit) == 2 and count_occurrence(sixes, digit)) == 2:
             mappings["top_right"] = digit
+            all_letters = all_letters.replace(digit, "")
+    for digit in set(all_letters):
         if (count_occurrence(fives, digit) == 2 and count_occurrence(sixes, digit)) == 3:
             mappings["bottom_right"] = digit
+            all_letters = all_letters.replace(digit, "")
     
     mydict = {
         find_diff("abcdefg", [mappings["middle"]]) : 0,
