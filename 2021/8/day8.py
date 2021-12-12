@@ -6,6 +6,23 @@ def get_input(file):
     with open(file, 'r') as f:
         lines = [line.strip() for line in f]
     return lines
+   
+# helper methods
+def sort_str(signal):
+    return "".join(sorted(set(signal)))
+ 
+def find_difference(a, b):
+    return "".join(set(a).difference(set(b)))
+    
+def find_diff(all_segments, minus_arr):
+    return "".join(set(all_segments).difference(set(minus_arr)))
+    
+def occurs(signals, digit, count=0):
+    for signal in signals:
+        for c in set(signal):
+            if c == digit:
+                count += 1
+    return count
     
 def part1_recursive(entries, count=0):
     if len(entries) == 0: return count
@@ -14,78 +31,50 @@ def part1_recursive(entries, count=0):
     count += sum([1 if length in (2,4,3,7) else 0 for length in lengths])
     return part1_recursive(entries[1:], count)
     
-def find_difference(a, b):
-    return "".join(set(a).difference(set(b)))
-    
-def find_diff(all_segments, minus_arr):
-    return "".join(sorted(set(all_segments).difference(set(minus_arr))))
-    
-def count_occurrence(signals, digit, count=0):
-    for signal in signals:
-        for c in set(signal):
-            if c == digit:
-                count += 1
-    return count
-    
-def part2_recursive(entries, count=0):
+def part2_recursive(entries, count=0, letters_str="abcdefg"):
     if len(entries) == 0: return count
-    split = [s.split() for s in entries[0].split(" | ")]
-    patterns = split[0]
+    split_raw = [s.split() for s in entries[0].split(" | ")]
+    patterns = split_raw[0]
     
-    uniques = {len(pattern) : pattern for pattern in [p for p in patterns if len(p) not in (5,6)]}
-    
+    uniques = {len(p) : p for p in patterns if len(p) not in (5,6)}
     fives = [p for p in patterns if len(p) == 5]
     sixes = [p for p in patterns if len(p) == 6]
     
-    mappings = {}
-    mappings["top"] = find_difference(uniques[3], uniques[2])    
+    mappings = {"top" : find_difference(uniques[3], uniques[2])}
     
-    
-    all_letters = "abcdefg"
-    
-    all_letters = all_letters.replace(mappings["top"], "")
+    all_letters = set(letters_str)
+    all_letters.remove(mappings["top"])
     
     for digit in set(all_letters):
-        if (count_occurrence(fives, digit) == 3 == count_occurrence(sixes, digit)):
-            mappings["bottom"] = digit
-            all_letters = all_letters.replace(digit, "")
-    for digit in set(all_letters):
-        if (count_occurrence(fives, digit) == 1 and count_occurrence(sixes, digit)) == 3:
-            mappings["top_left"] = digit
-            all_letters = all_letters.replace(digit, "")
-    for digit in set(all_letters):
-        if (count_occurrence(fives, digit) == 1 and count_occurrence(sixes, digit)) == 2:
-            mappings["bottom_left"] = digit
-            all_letters = all_letters.replace(digit, "")
-    for digit in set(all_letters):
-        if (count_occurrence(fives, digit) == 3 and count_occurrence(sixes, digit)) == 2:
-            mappings["middle"] = digit
-            all_letters = all_letters.replace(digit, "")
-    for digit in set(all_letters):
-        if (count_occurrence(fives, digit) == 2 and count_occurrence(sixes, digit)) == 2:
+        if occurs(fives, digit) == 2 == occurs(sixes, digit):
             mappings["top_right"] = digit
-            all_letters = all_letters.replace(digit, "")
-    for digit in set(all_letters):
-        if (count_occurrence(fives, digit) == 2 and count_occurrence(sixes, digit)) == 3:
+        if occurs(fives, digit) == 3 == occurs(sixes, digit):
+            mappings["bottom"] = digit
+        if occurs(fives, digit) == 2 and occurs(sixes, digit) == 3:
             mappings["bottom_right"] = digit
-            all_letters = all_letters.replace(digit, "")
+        if occurs(fives, digit) == 1 and occurs(sixes, digit) == 3:
+            mappings["top_left"] = digit
+        if occurs(fives, digit) == 1 and occurs(sixes, digit) == 2:
+            mappings["bottom_left"] = digit
+        if occurs(fives, digit) == 3 and occurs(sixes, digit) == 2:
+            mappings["middle"] = digit
+        all_letters.remove(digit)
     
-    mydict = {
-        find_diff("abcdefg", [mappings["middle"]]) : 0,
-        find_diff(uniques[2], []): 1,
-        find_diff("abcdefg", [mappings["bottom_right"], mappings["top_left"]]): 2,
-        find_diff("abcdefg", [mappings["bottom_left"], mappings["top_left"]]): 3,
-        find_diff(uniques[4], []): 4,
-        find_diff("abcdefg", [mappings["bottom_left"], mappings["top_right"]]): 5,
-        find_diff("abcdefg", [mappings["top_right"]]) : 6,
-        find_diff(uniques[3], []): 7,
-        find_diff(uniques[7], []): 8,
-        find_diff("abcdefg", [mappings["bottom_left"]]):9,
+    segments = {
+        sort_str(uniques[2]): 1,
+        sort_str(uniques[4]): 4,
+        sort_str(uniques[3]): 7,
+        sort_str(uniques[7]): 8,
+        sort_str(find_diff(letters_str, [mappings["middle"]])) : 0,
+        sort_str(find_diff(letters_str, [mappings["top_right"]])) : 6,
+        sort_str(find_diff(letters_str, [mappings["bottom_left"]])): 9,
+        sort_str(find_diff(letters_str, [mappings["bottom_right"], mappings["top_left"]])): 2,
+        sort_str(find_diff(letters_str, [mappings["bottom_left"], mappings["top_left"]])): 3,
+        sort_str(find_diff(letters_str, [mappings["bottom_left"], mappings["top_right"]])): 5,
     }
     
-    nums = [mydict["".join(sorted(set(outputvalue)))] for outputvalue in split[1]]
+    nums = [segments[sort_str(outputvalue)] for outputvalue in split_raw[1]]
     count += int("".join([str(num) for num in nums]))
-            
     return part2_recursive(entries[1:], count)
     
 # driver function
